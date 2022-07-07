@@ -1,0 +1,6 @@
+.vscode/
+__pycache__/
+backup/
+logs/
+rewards/
+weights/
