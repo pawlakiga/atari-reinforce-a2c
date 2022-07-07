@@ -1,3 +1,4 @@
+from cv2 import mean
 from agent import Agent
 import config
 from policies import *
@@ -27,16 +28,24 @@ def reinforce_classic(episodes_no = config.episodes_no,
             print(f"================== Episode {episode} =====================")
         step = agent.play_episode(policy = network_model_policy, policy_model= policy_model, experience_replay=True, discount_factor = discount_factor)
         if episode >= 0 * episodes_no:
-            # states, actions, targets, _ , _ = agent.replay_buffer.get_random_experience_batch(batch_size = batch_size)
-            states, actions, targets, _, _ = agent.replay_buffer.get_ordered_experience_batch(batch_size = step)
-            agent.replay_buffer.clear()
-            if config.DEBUG_PRINT:
-                print(f"Action probs before: {policy_model(tf.expand_dims(states[0],0))} and action was: {actions[0]}")
-            policy_mean_loss = policy_batch_training_step(model = policy_model, states = states, actions = actions, targets = targets, optimizer=policy_optimizer)
-            if config.DEBUG_PRINT:
-                print(f"Action probs after: {policy_model(tf.expand_dims(states[0],0))} and action was: {actions[0]}, mean loss {policy_mean_loss}")
+            total_loss = 0
+
+            # for batch in range(config.NUM_BATCHES):
+            while True:
+                # states, actions, targets, _ , _ = agent.replay_buffer.get_random_experience_batch(batch_size = batch_size)
+                states, actions, targets, _, _ = agent.replay_buffer.get_ordered_experience_batch(batch_size = config.BATCH_SIZE)
+                if len(states) == 0:
+                    break
+            # agent.replay_buffer.clear()
+                if config.DEBUG_PRINT:
+                    print("---")
+                    print(f"Action probs before: {policy_model(tf.expand_dims(states[0],0))} and action was: {actions[0]}")
+                mean_loss = policy_training_step(model = policy_model, states = states, actions = actions, targets = targets, optimizer=policy_optimizer)
+                total_loss += mean_loss/tf.reduce_sum(targets)
+                if config.DEBUG_PRINT:
+                    print(f"|| Action probs after: {policy_model(tf.expand_dims(states[0],0))} and action was: {actions[0]}, mean loss {policy_mean_loss}")
             with train_summary_writer.as_default():
-                tf.summary.scalar('policy mean loss', tf.reduce_mean(policy_mean_loss), step = episode)
+                tf.summary.scalar('policy mean loss', tf.reduce_mean(total_loss), step = episode)
                 tf.summary.scalar('cumulative reward', tf.reduce_sum(agent.rewards_history), step = episode)
         rewards_mem.append(tf.reduce_sum(agent.rewards_history))
         steps_mem.append(step)

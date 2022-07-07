@@ -3,13 +3,14 @@ from sympy.core import function
 DEBUG_PRINT = False
 REPLAY_BUFFER_LEN = 1000
 DISCOUNT_FACTOR = 0.99
-BATCH_SIZE = 1
+BATCH_SIZE = 64
+NUM_BATCHES = 12
 LOG_PATH = 'logs/batches'
 
 CLASSIC_ENVIRONMENT_NAME = 'CartPole-v1'
 ATARI_ENVIRONMENT_NAME = 'DemonAttack-v4'
 
-policy_learning_rate = 1e-5
+policy_learning_rate = 5e-2
 value_learning_rate = 1e-5
 episodes_no = 500
 
@@ -22,6 +23,6 @@ episodes_no = 500
     5 : reinforce_baseline_atari
 }
 """
-chosen_fun = 5
+chosen_fun = 1
 
 

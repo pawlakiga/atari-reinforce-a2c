@@ -1,6 +1,7 @@
 import random
 from collections import deque
 import numpy as np
+from sympy import EmptySequence
 
 class ReplayBuffer:
 
@@ -18,8 +19,13 @@ class ReplayBuffer:
 
     def get_ordered_experience_batch(self, batch_size):
         sample = []
-        for i in range(batch_size):
-            sample.append(self.buffer[i])
+        try:
+            for _ in range(batch_size):
+                sample.append(self.buffer.popleft())
+        except:
+            if len(sample) == 0:
+                return [np.array([]) for _ in range(5)]
+
         return [np.array([experience[field_index] for experience in sample]) for field_index in range(len(sample[0]))]
 
     def clear(self):

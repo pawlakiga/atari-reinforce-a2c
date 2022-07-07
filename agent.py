@@ -36,9 +36,11 @@ class Agent:
                 G_t = tf.math.reduce_sum([self.rewards_history[tt] * discount_factor ** tt for tt in range(t + 1,
                                                                                   len(self.state_history), 1)])
                 if t < len(self.state_history) - 1: # state is not terminal
-                    experience = (self.state_history[t], self.action_history[-1], G_t, self.state_history[t+1], False)
+                    experience = (self.state_history[t], self.action_history[t], G_t, self.state_history[t+1], False)
                 else: 
-                    experience = (self.state_history[t], self.action_history[-1], G_t, [], True)
+                    experience = (self.state_history[t], self.action_history[t], G_t, [], True)
+                if config.DEBUG_PRINT:
+                    print(f"Adding experience: {experience}")
                 self.replay_buffer.add_experience(experience)
             
         return step

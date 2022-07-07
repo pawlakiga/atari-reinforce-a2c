@@ -39,9 +39,9 @@ def policy_batch_training_step(model, states, actions, targets, optimizer):
     policy_grads = tape.gradient(loss, model.trainable_variables)
 
     total_loss = 0
-    for i in range(len(states)):
-        with tf.GradientTape() as tape2:
-            
+  
+    with tf.GradientTape() as tape2:
+        for i in range(len(states)):
             output_values = model(states)
             action_outputs = [output_values[i][actions[i]] for i in range(len(states))]
             loss_single = policy_loss(tf.expand_dims(targets[i],0), tf.expand_dims(action_outputs[i],0))
@@ -55,4 +55,20 @@ def policy_batch_training_step(model, states, actions, targets, optimizer):
     single_grads = tape2.gradient(total_loss, model.trainable_variables)
 
     # optimizer.apply_gradients(zip(policy_grads, model.trainable_variables))
+
+    for i in range(len(states)):
+        with tf.GradientTape() as tape3:
+            output_values = model(states)
+            action_outputs = [output_values[i][actions[i]] for i in range(len(states))]
+            loss3 = policy_loss(tf.expand_dims(targets[i],0), tf.expand_dims(action_outputs[i],0))
+            if config.DEBUG_PRINT:
+                print(f" |||| Policy |||| Targets: {targets[i]}, outputs: {action_outputs[i]} and loss: {loss3}")
+        sum_grads = tape3.gradient(loss3, model.trainable_variables)
+
+        if i == 0 :
+            sum_gradss = sum_grads[0]
+        else: 
+            sum_gradss = sum_gradss + sum_grads[0]
+            print(f"Single grads: {sum_grads[0]} and sum {sum_gradss}")
+
     return tf.reduce_mean(loss)
