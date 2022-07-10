@@ -14,7 +14,7 @@ def policy_training_step(model, states, actions, targets, optimizer):
 
     policy_grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(policy_grads, model.trainable_variables))
-    return tf.reduce_mean(loss)
+    return tf.math.divide(tf.reduce_sum(loss), tf.reduce_sum(targets))
 
 def value_training_step(model, states, targets, optimizer, metrics):
     with tf.GradientTape() as tape:
@@ -26,7 +26,23 @@ def value_training_step(model, states, targets, optimizer, metrics):
     grads = tape.gradient(loss, model.trainable_variables)
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
     metrics.update_state(model(states), tf.constant(deltas))
-    return tf.reduce_mean(loss)
+    return tf.math.divide(tf.reduce_sum(loss), tf.reduce_sum(targets))
+
+def a2c_value_training_step(model, states, rewards, next_states, optimizer, metrics, discount_factor):
+    with tf.GradientTape() as tape:
+        targets = tf.sum(rewards, tf.multiply(discount_factor, model(tf.expand_dims(next_states,0))))
+        output_values = model(states)
+        deltas = targets - output_values
+        loss = value_loss(deltas, output_values)
+        if config.DEBUG_PRINT:
+            print(f" |||| Value |||| Targets: {targets}, outputs: {output_values}, deltas: {deltas} and loss: {loss}")
+    grads = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(grads, model.trainable_variables))
+    metrics.update_state(model(states), tf.constant(deltas))
+    return tf.math.divide(tf.reduce_sum(loss), tf.reduce_sum(targets))
+
+
+
 
 def policy_batch_training_step(model, states, actions, targets, optimizer):
     with tf.GradientTape() as tape:

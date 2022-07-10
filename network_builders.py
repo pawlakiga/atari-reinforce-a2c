@@ -6,7 +6,7 @@ from keras.models import Model
 
 def dense_policy_network(input_shape, outputs_no):
     x = tf.keras.layers.Input(shape = input_shape)
-    h = tf.keras.layers.Dense(2, activation='relu', kernel_initializer='random_normal', bias_initializer='zeros')(x)
+    h = tf.keras.layers.Dense(128, activation='relu', kernel_initializer='random_normal', bias_initializer='zeros')(x)
     # h = layers.Dense(64, activation='relu', kernel_initializer='random_normal', bias_initializer='zeros')(h)
     # h = layers.Dense(32, activation='relu')(h)
     h = tf.keras.layers.Dense(outputs_no, kernel_initializer='random_normal', bias_initializer='zeros')(h)

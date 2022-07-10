@@ -34,8 +34,8 @@ def split_on_axes(tensor):
     return [np.array([experience[field_index] for experience in tensor])
     for field_index in range(len(tensor[0]))]
 
-def file_name(function_name : str, learning_rate, object):
+def file_name(function_name : str, learning_rate, object, discount_factor = config.DISCOUNT_FACTOR, batch_size = config.BATCH_SIZE):
     date_time = datetime.now()
     dt_string = date_time.strftime("%d-%m_%H-%M")
-    return f"{object}\\{object}_{function_name}_lr{learning_rate}_gamma{config.DISCOUNT_FACTOR}_{dt_string}.csv"
+    return f"{object}\\{function_name}_lr{learning_rate}_gamma{discount_factor}_batch{batch_size}_{dt_string}.csv"
 

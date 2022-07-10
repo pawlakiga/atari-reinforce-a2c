@@ -1,3 +1,4 @@
+import time
 import tensorflow as tf
 import numpy as np
 import config
@@ -25,10 +26,13 @@ class Agent:
         self.rewards_history.append(reward)
         return done
 
-    def play_episode(self, policy, policy_model, steps_limit=100000, experience_replay = False, discount_factor = 1):
+    def play_episode(self, policy, policy_model, steps_limit=config.STEPS_LIMIT, experience_replay = False, discount_factor = 1):
         done = False
         for step in range(steps_limit):
             done = self.take_action(policy=policy, policy_model=policy_model)
+            # self.environment.render()
+            # time.sleep(1 / 30)  # FPS
+
             if done:
                 break
         if experience_replay:
