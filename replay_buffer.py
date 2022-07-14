@@ -1,9 +1,12 @@
 import random
 from collections import deque
 import numpy as np
-from sympy import EmptySequence
+
 
 class ReplayBuffer:
+    """
+    Class to represent replay buffer and sample from it
+    """
 
     def __init__(self, max_length) -> None:
         self.buffer = deque(maxlen=max_length)
@@ -12,28 +15,18 @@ class ReplayBuffer:
         self.buffer.append(experience)
 
     def get_random_experience_batch(self, batch_size):
+        """
+        function to sample a random experience batch from buffer
+        Arguments:
+        @ batch_size - number of desired samples in batch
+        """
         sample = []
         for i in range(batch_size):
             sample.append(random.choice(self.buffer))
         return [np.array([experience[field_index] for experience in sample]) for field_index in range(len(sample[0]))]
 
-    def get_ordered_experience_batch(self, batch_size):
-        sample = []
-        try:
-            for _ in range(batch_size):
-                sample.append(self.buffer.popleft())
-        except:
-            if len(sample) == 0:
-                return [np.array([]) for _ in range(5)]
-
-        return [np.array([experience[field_index] for experience in sample]) for field_index in range(len(sample[0]))]
-
     def clear(self):
         self.buffer.clear()
-
-    # def get_single_experience(self):
-    #     experience = self.buffer.popleft()
-    #     return [np.array([experience[field_index] for field_index in range(len(experience))])]
 
     @property
     def len(self):
