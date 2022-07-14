@@ -55,7 +55,7 @@ def reinforce_classic(episodes_no = episodes_no,
 
     env.close() 
     # make_plot(range(1, episodes_no + 1, 1), rewards_mem, 'Episode', 'Total reward', f'Cumulative reward for reinforce - {CLASSIC_ENVIRONMENT_NAME}')
-    np.savetxt(file_name('reinforce_classic\\reinforce_test_classic', policy_learning_rate, 'rewards', discount_factor=discount_factor, batch_size=batch_size), rewards_mem, delimiter=',')
+    # np.savetxt(file_name('reinforce_classic\\reinforce_test_classic', policy_learning_rate, 'rewards', discount_factor=discount_factor, batch_size=batch_size), rewards_mem, delimiter=',')
 
 
 
@@ -115,7 +115,7 @@ def reinforce_baseline_classic(episodes_no = episodes_no,
 
     env.close() 
     # make_plot(range(1, episodes_no + 1, 1), rewards_mem, 'Episode', 'Total reward', f'Cumulative reward for reinforce baseline - {CLASSIC_ENVIRONMENT_NAME}')
-    np.savetxt(file_name('baseline_classic\\reinforce_baseline_test_classic', [value_learning_rate, policy_learning_rate], 'rewards', discount_factor=discount_factor, batch_size=batch_size), rewards_mem, delimiter=',')
+    # np.savetxt(file_name('baseline_classic\\reinforce_baseline_test_classic', [value_learning_rate, policy_learning_rate], 'rewards', discount_factor=discount_factor, batch_size=batch_size), rewards_mem, delimiter=',')
 
 
 def reinforce_baseline_classic_no_batch(episodes_no = episodes_no, 
@@ -124,11 +124,11 @@ def reinforce_baseline_classic_no_batch(episodes_no = episodes_no,
                                         discount_factor = DISCOUNT_FACTOR, 
                                         batch_size = BATCH_SIZE):
 
-    # For tensorflow
+    # Creation of file writer for tensorboard
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = f'{LOG_PATH}/baseline_classic_nb/lr{[value_learning_rate, policy_learning_rate]}_batch{BATCH_SIZE}_' + current_time + '/train'
     train_summary_writer = tf.summary.create_file_writer(train_log_dir)
-
+    # Environment and agent initialisation
     env = gym.make(CLASSIC_ENVIRONMENT_NAME)
     agent = Agent(environment=env, start_state=env.reset())
 
@@ -151,7 +151,6 @@ def reinforce_baseline_classic_no_batch(episodes_no = episodes_no,
         value_loss = 0
         G_t_mem = []
         # learning 
-
         for t in range(len(agent.state_history)-1):
             state_t = agent.state_history[t]
             action_t = agent.action_history[t]
@@ -172,15 +171,15 @@ def reinforce_baseline_classic_no_batch(episodes_no = episodes_no,
             baseline = value_model(tf.expand_dims(state_t,0))
             if DEBUG_PRINT:
                 print(f"Value after: {baseline}")
-            
+            # delta = G_t - v(S,w)
             delta_t = G_t - baseline
             total_loss += policy_training_step(model = policy_model, states = tf.expand_dims(state_t,0), actions=tf.expand_dims(action_t,0), targets=tf.expand_dims(delta_t,0), optimizer=policy_optimizer )
             if DEBUG_PRINT:
                 print(f"Action probs after: {policy_model(tf.expand_dims(state_t,0))} and action was: {action_t}")
 
-        mean_loss = total_loss / np.sum(G_t_mem)
-        value_mean_loss = value_loss/np.sum(G_t_mem)
-
+        mean_loss = total_loss / len(agent.state_history)
+        value_mean_loss = value_loss/len(agent.state_history)
+        # Writing data to tensorboard
         with train_summary_writer.as_default():
             tf.summary.scalar('policy mean loss', mean_loss, step = episode)
             tf.summary.scalar('value mean loss', value_mean_loss, step = episode)
@@ -195,7 +194,7 @@ def reinforce_baseline_classic_no_batch(episodes_no = episodes_no,
 
     env.close() 
     # make_plot(range(1, episodes_no + 1, 1), rewards_mem, 'Episode', 'Total reward', f'Cumulative reward for reinforce baseline - {CLASSIC_ENVIRONMENT_NAME}')
-    np.savetxt(file_name('baseline_classic\\reinforce_baseline_test_classic_nb', [value_learning_rate, policy_learning_rate], 'rewards', discount_factor=discount_factor, batch_size=1), rewards_mem, delimiter=',')
+    # np.savetxt(file_name('baseline_classic\\reinforce_baseline_test_classic_nb', [value_learning_rate, policy_learning_rate], 'rewards', discount_factor=discount_factor, batch_size=1), rewards_mem, delimiter=',')
 
 def reinforce_classic_no_batch(episodes_no = episodes_no, 
                                 policy_learning_rate = policy_learning_rate,
@@ -203,6 +202,7 @@ def reinforce_classic_no_batch(episodes_no = episodes_no,
                                 discount_factor = DISCOUNT_FACTOR, 
                                 batch_size = BATCH_SIZE):
 
+    # Creation of file writer for tensorboard
     current_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     train_log_dir = f'{LOG_PATH}/classic_nb/lr{[value_learning_rate, policy_learning_rate]}_batch{BATCH_SIZE}_' + current_time + '/train'
     train_summary_writer = tf.summary.create_file_writer(train_log_dir)

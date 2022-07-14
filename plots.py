@@ -54,9 +54,10 @@ file_names  = [
     # 'reinforce_baseline_test_classic_nb_lr[0.001, 0.001]_gamma1_batch1_14-07_08-55.csv'
 
   #########################
-    'actor_critic_nb_lr[0.001, 0.001]_gamma1_batch1_14-07_14-32.csv',
-    'actor_critic_nb_lr[0.001, 1e-05]_gamma1_batch1_14-07_14-27.csv',
-    'actor_critic_nb_lr[0.001, 0.001]_gamma0.99_batch1_14-07_14-13'
+    # 'actor_critic_nb_lr[0.001, 0.001]_gamma1_batch1_14-07_14-32.csv',
+    # 'actor_critic_nb_lr[0.001, 1e-05]_gamma1_batch1_14-07_14-27.csv',
+    # 'actor_critic_nb_lr[0.001, 0.001]_gamma0.99_batch1_14-07_14-13'
+#########################
 
     ]
 
@@ -80,7 +81,7 @@ labels = ['learning rates = [0.00001, 0.00001]', 'learning rates = [0.001, 0.000
 # title = 'Reinforce with baseline  - discount factor'
 
 # title = 'Reinforce with baseline  - experience replay comparison'
-title = 'Actor critic - learning ratesddddd'
+title = 'Actor critic - learning rates'
 
 episodes_mean = 20
 
